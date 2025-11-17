@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'lesson.dart';
+part of 'session.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class LessonAdapter extends TypeAdapter<Lesson> {
+class SessionAdapter extends TypeAdapter<Session> {
   @override
   final int typeId = 2;
 
   @override
-  Lesson read(BinaryReader reader) {
+  Session read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Lesson(
+    return Session(
       id: fields[0] as String,
       title: fields[1] as String,
       date: fields[2] as DateTime,
@@ -26,7 +26,7 @@ class LessonAdapter extends TypeAdapter<Lesson> {
   }
 
   @override
-  void write(BinaryWriter writer, Lesson obj) {
+  void write(BinaryWriter writer, Session obj) {
     writer
       ..writeByte(5)
       ..writeByte(0)
@@ -47,7 +47,7 @@ class LessonAdapter extends TypeAdapter<Lesson> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LessonAdapter &&
+      other is SessionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 import 'attendance.dart';
-part 'lesson.g.dart';
+part 'session.g.dart';
 
 @HiveType(typeId: 2)
-class Lesson extends HiveObject {
+class Session extends HiveObject {
   @HiveField(0)
   String id;
 
@@ -20,7 +20,7 @@ class Lesson extends HiveObject {
   @HiveField(4)
   List<Attendance> attendance;
 
-  Lesson({
+  Session({
     required this.id,
     required this.title,
     required this.date,

@@ -1,13 +1,13 @@
 import 'package:hive/hive.dart';
-part 'trainee.g.dart';
+part 'attendant.g.dart';
 
 @HiveType(typeId: 1)
-class Trainee extends HiveObject {
+class Attendant extends HiveObject {
   @HiveField(0)
   String id;
 
   @HiveField(1)
   String name;
 
-  Trainee({required this.id, required this.name});
+  Attendant({required this.id, required this.name});
 }

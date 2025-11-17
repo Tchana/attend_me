@@ -14,10 +14,10 @@ enum PresenceStatus {
 @HiveType(typeId: 4)
 class Attendance extends HiveObject {
   @HiveField(0)
-  String traineeId;
+  String attendantId;
 
   @HiveField(1)
   PresenceStatus status;
 
-  Attendance({required this.traineeId, required this.status});
+  Attendance({required this.attendantId, required this.status});
 }

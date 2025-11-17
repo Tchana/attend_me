@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/training_controller.dart';
+import '../controllers/program_controller.dart';
 
-class AddTraineePage extends StatefulWidget {
-  final String trainingId;
-  AddTraineePage({required this.trainingId});
+class AddAttendantPage extends StatefulWidget {
+  final String programId;
+  AddAttendantPage({required this.programId});
 
   @override
-  _AddTraineePageState createState() => _AddTraineePageState();
+  _AddAttendantPageState createState() => _AddAttendantPageState();
 }
 
-class _AddTraineePageState extends State<AddTraineePage> {
-  final ctrl = Get.find<TrainingController>();
+class _AddAttendantPageState extends State<AddAttendantPage> {
+  final ctrl = Get.find<ProgramController>();
   final _formKey = GlobalKey<FormState>();
   final nameCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Trainee')),
+      appBar: AppBar(title: Text('Add Attendant')),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Form(
@@ -32,8 +32,8 @@ class _AddTraineePageState extends State<AddTraineePage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _addTrainee,
-              child: Text('Add Trainee'),
+              onPressed: _addAttendant,
+              child: Text('Add Attendant'),
             ),
           ]),
         ),
@@ -41,14 +41,14 @@ class _AddTraineePageState extends State<AddTraineePage> {
     );
   }
 
-  Future<void> _addTrainee() async {
+  Future<void> _addAttendant() async {
     if (_formKey.currentState!.validate()) {
       try {
         await ctrl
-            .addTrainee(widget.trainingId, nameCtrl.text.trim())
+            .addAttendant(widget.programId, nameCtrl.text.trim())
             .then((value) {
           Get.back();
-          Get.snackbar('Success', 'Trainee added');
+          Get.snackbar('Success', 'Attendant added');
         }).catchError((error) {
           Get.back();
           Get.snackbar("Error", error.toString());
@@ -56,7 +56,7 @@ class _AddTraineePageState extends State<AddTraineePage> {
         // Close this page and return to the previous one
         // Close current page and return to previous
       } catch (e) {
-        Get.snackbar('Error', 'Failed to add trainee: $e');
+        Get.snackbar('Error', 'Failed to add attendant: $e');
       }
     }
   }

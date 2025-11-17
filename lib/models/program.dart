@@ -1,11 +1,11 @@
 import 'package:hive/hive.dart';
-import 'lesson.dart';
-import 'trainee.dart';
+import 'session.dart';
+import 'attendant.dart';
 
-part 'training.g.dart';
+part 'program.g.dart';
 
 @HiveType(typeId: 0)
-class Training extends HiveObject {
+class Program extends HiveObject {
   @HiveField(0)
   String id;
 
@@ -20,18 +20,18 @@ class Training extends HiveObject {
   String googleSheetUrl;
 
   @HiveField(4)
-  List<Trainee> trainees;
+  List<Attendant> attendants;
 
   @HiveField(5)
-  List<Lesson> lessons;
+  List<Session> sessions;
 
-  Training({
+  Program({
     required this.id,
     required this.title,
     this.description = '',
     this.googleSheetUrl = '',
-    List<Trainee>? trainees,
-    List<Lesson>? lessons,
-  })  : trainees = trainees ?? [],
-        lessons = lessons ?? [];
+    List<Attendant>? attendants,
+    List<Session>? sessions,
+  })  : attendants = attendants ?? [],
+        sessions = sessions ?? [];
 }

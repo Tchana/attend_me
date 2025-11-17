@@ -17,7 +17,7 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Attendance(
-      traineeId: fields[0] as String,
+      attendantId: fields[0] as String,
       status: fields[1] as PresenceStatus,
     );
   }
@@ -27,7 +27,7 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
     writer
       ..writeByte(2)
       ..writeByte(0)
-      ..write(obj.traineeId)
+      ..write(obj.attendantId)
       ..writeByte(1)
       ..write(obj.status);
   }

@@ -2,7 +2,7 @@ import 'package:attend_me/models/attendance.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/sheets/v4.dart' as sheets;
 import 'package:http/http.dart' as http;
-import '../models/training.dart';
+import '../models/program.dart';
 
 class SheetsService {
   // Note: For Google Sign-In to work properly, you need to:
@@ -15,10 +15,10 @@ class SheetsService {
     scopes: [sheets.SheetsApi.spreadsheetsScope],
   );
 
-  // Call to sync a training to the provided googleSheetUrl
+  // Call to sync a program to the provided googleSheetUrl
   // This is a simple example that overwrites the sheet with a table:
-  // Trainee | Lesson1 (date) | Lesson2 ...
-  static Future<void> syncTrainingToSheet(Training t) async {
+  // Attendant | Session1 (date) | Session2 ...
+  static Future<void> syncProgramToSheet(Program t) async {
     if (t.googleSheetUrl.isEmpty) return;
 
     try {
@@ -33,21 +33,21 @@ class SheetsService {
       final spreadsheetId = _spreadsheetIdFromUrl(t.googleSheetUrl);
       if (spreadsheetId == null) return;
 
-      // Build header row: Trainee, then each lesson date/title
+      // Build header row: Attendant, then each session date/title
       List<List<Object?>> values = [];
-      List<Object?> header = ['Trainee'];
-      for (var lesson in t.lessons) {
-        header.add('${lesson.title} (${lesson.date.toIso8601String().split("T").first})');
+      List<Object?> header = ['Attendant'];
+      for (var session in t.sessions) {
+        header.add('${session.title} (${session.date.toIso8601String().split("T").first})');
       }
       values.add(header);
 
-      // Each trainee row
-      for (var trainee in t.trainees) {
-        List<Object?> row = [trainee.name];
-        for (var lesson in t.lessons) {
-          final a = lesson.attendance.firstWhere((att) => att.traineeId == trainee.id, orElse: () => Attendance(traineeId: '', status: PresenceStatus.Absent));
+      // Each attendant row
+      for (var attendant in t.attendants) {
+        List<Object?> row = [attendant.name];
+        for (var session in t.sessions) {
+          final a = session.attendance.firstWhere((att) => att.attendantId == attendant.id, orElse: () => Attendance(attendantId: '', status: PresenceStatus.Absent));
           String mark = '';
-          if (a.traineeId.isEmpty) mark = '';
+          if (a.attendantId.isEmpty) mark = '';
           else if (a.status == PresenceStatus.Present) mark = 'P';
           else if (a.status == PresenceStatus.Absent) mark = 'A';
           else if (a.status == PresenceStatus.CatchUp) mark = 'C';

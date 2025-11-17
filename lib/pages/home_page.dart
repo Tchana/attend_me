@@ -1,26 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/training_controller.dart';
-import 'training_detail_page.dart';
-import 'create_training_page.dart';
+import '../controllers/program_controller.dart';
+import '../services/csv_service.dart';
+import 'program_detail_page.dart';
+import 'create_program_page.dart';
 
 class HomePage extends StatelessWidget {
-  final TrainingController ctrl = Get.find();
+  final ProgramController ctrl = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Trainings'),
+        title: Text('Programs'),
         backgroundColor: Colors.blueAccent,
         elevation: 4,
         actions: [
+          IconButton(
+            icon: Icon(Icons.backup),
+            tooltip: 'Backup Data',
+            onPressed: () async {
+              await CsvService.backupPrograms();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.upload_file),
+            tooltip: 'Import CSV',
+            onPressed: () async {
+              await CsvService.importProgramFromCsv();
+            },
+          ),
           IconButton(
             icon: Icon(Icons.info_outline),
             onPressed: () {
               Get.snackbar(
                 'Help',
-                'Tap on a training to view details. Use the + button to create a new training.',
+                'Tap on a program to view details. Use the + button to create a new program.',
                 snackPosition: SnackPosition.BOTTOM,
               );
             },
@@ -28,7 +43,7 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        final items = ctrl.trainings;
+        final items = ctrl.programs;
         if (items.isEmpty) {
           return _buildEmptyState();
         }
@@ -46,7 +61,7 @@ class HomePage extends StatelessWidget {
                 ),
                 child: InkWell(
                   onTap: () {
-                    Get.to(() => TrainingDetailPage(trainingId: t.id));
+                    Get.to(() => ProgramDetailPage(programId: t.id));
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
@@ -86,13 +101,13 @@ class HomePage extends StatelessWidget {
                           children: [
                             _buildInfoChip(
                               Icons.school,
-                              '${t.lessons.length} lessons',
+                              '${t.sessions.length} sessions',
                               Colors.blue,
                             ),
                             SizedBox(width: 12),
                             _buildInfoChip(
                               Icons.people,
-                              '${t.trainees.length} trainees',
+                              '${t.attendants.length} attendants',
                               Colors.green,
                             ),
                             if (t.googleSheetUrl.isNotEmpty) ...[
@@ -118,7 +133,7 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.blueAccent,
         child: Icon(Icons.add),
         onPressed: () {
-          Get.to(() => CreateTrainingPage());
+          Get.to(() => CreateProgramPage());
         },
       ),
     );
@@ -136,7 +151,7 @@ class HomePage extends StatelessWidget {
           ),
           SizedBox(height: 20),
           Text(
-            'No trainings yet',
+            'No programs yet',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -145,7 +160,7 @@ class HomePage extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Create your first training to get started',
+            'Create your first program to get started',
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[500],
@@ -154,10 +169,10 @@ class HomePage extends StatelessWidget {
           SizedBox(height: 30),
           ElevatedButton.icon(
             onPressed: () {
-              Get.to(() => CreateTrainingPage());
+              Get.to(() => CreateProgramPage());
             },
             icon: Icon(Icons.add),
-            label: Text('Create Training'),
+            label: Text('Create Program'),
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -196,16 +211,16 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, String trainingId, String title) {
+  void _confirmDelete(BuildContext context, String programId, String title) {
     Get.defaultDialog(
-      title: 'Delete Training',
+      title: 'Delete Program',
       middleText: 'Are you sure you want to delete "$title"?',
       textConfirm: 'Delete',
       textCancel: 'Cancel',
       confirmTextColor: Colors.white,
       buttonColor: Colors.red,
       onConfirm: () {
-        ctrl.deleteTraining(trainingId);
+        ctrl.deleteProgram(programId);
         Get.back();
       },
     );

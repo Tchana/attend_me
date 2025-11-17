@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/training_controller.dart';
+import '../controllers/program_controller.dart';
 import '../models/attendance.dart';
 
 class TakeAttendancePage extends StatefulWidget {
-  final String trainingId;
-  final String lessonId;
-  final TrainingController ctrl = Get.find<TrainingController>();
+  final String programId;
+  final String sessionId;
+  final ProgramController ctrl = Get.find<ProgramController>();
 
-  TakeAttendancePage({required this.trainingId, required this.lessonId});
+  TakeAttendancePage({required this.programId, required this.sessionId});
 
   @override
   _TakeAttendancePageState createState() => _TakeAttendancePageState();
@@ -17,22 +17,35 @@ class TakeAttendancePage extends StatefulWidget {
 class _TakeAttendancePageState extends State<TakeAttendancePage> {
   // Map to keep track of attendance status for immediate UI updates
   Map<String, PresenceStatus> _attendanceStatus = {};
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _initializeAttendanceStatus();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   // Initialize attendance status from existing data
   void _initializeAttendanceStatus() {
-    final training =
-        widget.ctrl.trainings.firstWhere((t) => t.id == widget.trainingId);
-    final lesson = training.lessons.firstWhere((l) => l.id == widget.lessonId);
+    final program =
+        widget.ctrl.programs.firstWhere((t) => t.id == widget.programId);
+    final session = program.sessions.firstWhere((l) => l.id == widget.sessionId);
 
-    for (var tr in training.trainees) {
+    for (var tr in program.attendants) {
       try {
-        final att = lesson.attendance.firstWhere((a) => a.traineeId == tr.id);
+        final att = session.attendance.firstWhere((a) => a.attendantId == tr.id);
         _attendanceStatus[tr.id] = att.status;
       } catch (e) {
         // If attendance record doesn't exist, use default
@@ -41,72 +54,85 @@ class _TakeAttendancePageState extends State<TakeAttendancePage> {
     }
   }
 
-  // Helper method to find attendance or return default
-  Attendance _findAttendanceOrDefault(
-      List<Attendance> attendanceList, String traineeId) {
-    try {
-      return attendanceList.firstWhere((a) => a.traineeId == traineeId);
-    } catch (e) {
-      // If attendance record doesn't exist, create a default one
-      return Attendance(traineeId: traineeId, status: PresenceStatus.Absent);
-    }
-  }
-
   // Update attendance status and UI immediately
-  void _updateAttendance(String traineeId, PresenceStatus status) {
+  void _updateAttendance(String attendantId, PresenceStatus status) {
     setState(() {
-      _attendanceStatus[traineeId] = status;
+      _attendanceStatus[attendantId] = status;
     });
 
     // Call the controller method to persist the change
     widget.ctrl.updateAttendance(
-        widget.trainingId, widget.lessonId, traineeId, status);
+        widget.programId, widget.sessionId, attendantId, status);
   }
 
   @override
   Widget build(BuildContext context) {
-    final training =
-        widget.ctrl.trainings.firstWhere((t) => t.id == widget.trainingId);
-    final lesson = training.lessons.firstWhere((l) => l.id == widget.lessonId);
+    final program =
+        widget.ctrl.programs.firstWhere((t) => t.id == widget.programId);
+    final session = program.sessions.firstWhere((l) => l.id == widget.sessionId);
+    final attendants = program.attendants
+        .where((tr) =>
+            _searchQuery.isEmpty ||
+            tr.name.toLowerCase().contains(_searchQuery))
+        .toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Attendance - ${lesson.title}')),
-      body: ListView.builder(
-        itemCount: training.trainees.length,
-        itemBuilder: (_, i) {
-          final tr = training.trainees[i];
-          // Get current status from our local map
-          final currentStatus =
-              _attendanceStatus[tr.id] ?? PresenceStatus.Absent;
+      appBar: AppBar(title: Text('Attendance - ${session.title}')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: 'Search attendants by name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: attendants.length,
+              itemBuilder: (_, i) {
+                final tr = attendants[i];
+                // Get current status from our local map
+                final currentStatus =
+                    _attendanceStatus[tr.id] ?? PresenceStatus.Absent;
 
-          return ListTile(
-            title: Text(tr.name),
-            subtitle: Text(_getStatusText(currentStatus)),
-            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-              IconButton(
-                  icon: Icon(Icons.check_circle,
-                      color: currentStatus == PresenceStatus.Present
-                          ? Colors.green
-                          : Colors.grey),
-                  onPressed: () =>
-                      _updateAttendance(tr.id, PresenceStatus.Present)),
-              IconButton(
-                  icon: Icon(Icons.close,
-                      color: currentStatus == PresenceStatus.Absent
-                          ? Colors.red
-                          : Colors.grey),
-                  onPressed: () =>
-                      _updateAttendance(tr.id, PresenceStatus.Absent)),
-              IconButton(
-                  icon: Icon(Icons.autorenew,
-                      color: currentStatus == PresenceStatus.CatchUp
-                          ? Colors.orange
-                          : Colors.grey),
-                  onPressed: () =>
-                      _updateAttendance(tr.id, PresenceStatus.CatchUp)),
-            ]),
-          );
-        },
+                return ListTile(
+                  title: Text(tr.name),
+                  subtitle: Text(_getStatusText(currentStatus)),
+                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    IconButton(
+                        icon: Icon(Icons.check_circle,
+                            color: currentStatus == PresenceStatus.Present
+                                ? Colors.green
+                                : Colors.grey),
+                        onPressed: () =>
+                            _updateAttendance(tr.id, PresenceStatus.Present)),
+                    IconButton(
+                        icon: Icon(Icons.close,
+                            color: currentStatus == PresenceStatus.Absent
+                                ? Colors.red
+                                : Colors.grey),
+                        onPressed: () =>
+                            _updateAttendance(tr.id, PresenceStatus.Absent)),
+                    IconButton(
+                        icon: Icon(Icons.autorenew,
+                            color: currentStatus == PresenceStatus.CatchUp
+                                ? Colors.orange
+                                : Colors.grey),
+                        onPressed: () =>
+                            _updateAttendance(tr.id, PresenceStatus.CatchUp)),
+                  ]),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/training_controller.dart';
+import '../controllers/program_controller.dart';
 
-class AddLessonPage extends StatefulWidget {
-  final String trainingId;
-  AddLessonPage({required this.trainingId});
+class AddSessionPage extends StatefulWidget {
+  final String programId;
+  AddSessionPage({required this.programId});
   @override
-  _AddLessonPageState createState() => _AddLessonPageState();
+  _AddSessionPageState createState() => _AddSessionPageState();
 }
 
-class _AddLessonPageState extends State<AddLessonPage> {
+class _AddSessionPageState extends State<AddSessionPage> {
   final titleCtrl = TextEditingController();
   DateTime selected = DateTime.now();
   bool isNewChapter = true;
   bool recurring = false;
   int weeks = 1;
-  final ctrl = Get.find<TrainingController>();
+  final ctrl = Get.find<ProgramController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Lesson')),
+      appBar: AppBar(title: const Text('Add Session')),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             TextField(
                 controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'Lesson title')),
+                decoration: const InputDecoration(labelText: 'Session title')),
             SizedBox(height: 8),
             Row(children: [
               const Text('Date: '),
@@ -62,8 +62,8 @@ class _AddLessonPageState extends State<AddLessonPage> {
               ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _addLesson,
-              child: const Text('Create Lesson'),
+              onPressed: _addSession,
+              child: const Text('Create Session'),
             )
           ],
         ),
@@ -71,7 +71,7 @@ class _AddLessonPageState extends State<AddLessonPage> {
     );
   }
 
-  Future<void> _addLesson() async {
+  Future<void> _addSession() async {
     final title = titleCtrl.text.trim();
     if (title.isEmpty) {
       Get.snackbar('Error', 'Title required');
@@ -85,16 +85,16 @@ class _AddLessonPageState extends State<AddLessonPage> {
 
     try {
       await ctrl
-          .addLesson(widget.trainingId, title, selected, isNewChapter,
+          .addSession(widget.programId, title, selected, isNewChapter,
               recurringWeekly: recurring, weeks: weeks)
           .then((value) {
         // Close this page and return to the previous one
         Get.back();
-        Get.snackbar('Success', 'Lesson created');
+        Get.snackbar('Success', 'Session created');
 
       });
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create lesson: $e');
+      Get.snackbar('Error', 'Failed to create session: $e');
     }
   }
 }

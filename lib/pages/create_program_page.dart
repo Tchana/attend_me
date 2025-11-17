@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/training_controller.dart';
+import '../controllers/program_controller.dart';
 
-class CreateTrainingPage extends StatelessWidget {
-  final TrainingController ctrl = Get.find();
+class CreateProgramPage extends StatelessWidget {
+  final ProgramController ctrl = Get.find();
   final titleCtrl = TextEditingController();
   final descCtrl = TextEditingController();
   final sheetCtrl = TextEditingController();
@@ -12,7 +12,7 @@ class CreateTrainingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Training'),
+        title: Text('Create Program'),
       ),
       body: Padding(
         padding: EdgeInsets.all(12),
@@ -30,7 +30,7 @@ class CreateTrainingPage extends StatelessWidget {
                   Get.snackbar('Error', 'Title is required');
                   return;
                 }
-                ctrl.createTraining(title, desc: descCtrl.text.trim(), sheetUrl: sheetCtrl.text.trim());
+                ctrl.createProgram(title, desc: descCtrl.text.trim(), sheetUrl: sheetCtrl.text.trim());
                 Get.back();
               },
             )
