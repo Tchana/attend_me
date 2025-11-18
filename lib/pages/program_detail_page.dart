@@ -93,6 +93,7 @@ class _ProgramDetailPageState extends State<ProgramDetailPage>
               session.title.toLowerCase().contains(_sessionQuery))
           .toList();
       return Scaffold(
+        backgroundColor: Color(0xFFE2E2E2),
         appBar: AppBar(
           title: Text(program.title),
           actions: [

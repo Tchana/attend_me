@@ -36,6 +36,7 @@ class AnalyticsPage extends StatelessWidget {
     int totalCount = presentCount + absentCount + catchupCount;
 
     return Scaffold(
+      backgroundColor: Color(0xFFE2E2E2),
       appBar: AppBar(title: Text('Analytics - ${program.title}')),
       body: Padding(
         padding: EdgeInsets.all(12),

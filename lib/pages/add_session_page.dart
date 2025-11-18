@@ -20,6 +20,7 @@ class _AddSessionPageState extends State<AddSessionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFE2E2E2),
       appBar: AppBar(title: const Text('Add Session')),
       body: Padding(
         padding: const EdgeInsets.all(12),

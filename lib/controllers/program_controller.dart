@@ -44,6 +44,20 @@ class ProgramController extends GetxController {
     _loadPrograms();
   }
 
+  Future<void> updateProgram(String id, String newTitle, String newDescription) async {
+    final t = _box.get(id);
+    if (t == null) return;
+    t.title = newTitle;
+    t.description = newDescription;
+    await t.save();
+    _loadPrograms();
+
+    // If Google Sheet is configured, try to sync
+    if (t.googleSheetUrl.isNotEmpty) {
+      SheetsService.syncProgramToSheet(t);
+    }
+  }
+
   Future<void> addAttendant(String programId, String name) async {
     final t = _box.get(programId);
     if (t == null) return;

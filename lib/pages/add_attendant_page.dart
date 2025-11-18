@@ -18,6 +18,7 @@ class _AddAttendantPageState extends State<AddAttendantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFE2E2E2),
       appBar: AppBar(title: Text('Add Attendant')),
       body: Padding(
         padding: EdgeInsets.all(16),
