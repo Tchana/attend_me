@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Image.asset('assets/icon/attendme.png', height: 32, width: 32),
             const SizedBox(width: 8),
-            Text(_selectedIndex == 0 ? 'Attend Me' : _selectedIndex == 1 ? 'Programs' : _selectedIndex == 2 ? 'Stats' : 'Settings'),
+            Text(_selectedIndex == 0 ? 'Attend Me' : _selectedIndex == 1 ? 'Programs' : _selectedIndex == 2 ? 'Stats' : 'Settings', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),),
           ],
         ),
         backgroundColor: Colors.white,

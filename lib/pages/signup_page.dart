@@ -2,27 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:attend_me/controllers/auth_controller.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   SignupPage({Key? key}) : super(key: key);
 
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   final AuthController _authController = Get.find<AuthController>();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
 
   void _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    final success = await _authController.signup(name, email, password);
-    if (success) {
-      Get.offAllNamed('/home');
-    } else {
-      Get.snackbar('Erreur', 'Échec de l\'inscription', snackPosition: SnackPosition.BOTTOM);
+    setState(() => _isLoading = true);
+    try {
+      final success = await _authController.signup(name, email, password);
+      setState(() => _isLoading = false);
+      if (success) {
+        Get.offAllNamed('/home');
+      } else {
+        Get.snackbar('Erreur', 'Échec de l\'inscription', snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      Get.snackbar('Error', 'Signup failed: ${e.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     }
   }
 
@@ -78,7 +100,7 @@ class SignupPage extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(onPressed: _submit, child: const Text("S'inscrire")),
+                ElevatedButton(onPressed: _isLoading ? null : _submit, child: _isLoading ? SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,valueColor:AlwaysStoppedAnimation<Color>(Colors.white))) : const Text("S'inscrire")),
                 TextButton(
                   onPressed: () => Get.back(),
                   child: const Text('Déjà un compte ? Se connecter'),
@@ -91,4 +113,3 @@ class SignupPage extends StatelessWidget {
     );
   }
 }
-

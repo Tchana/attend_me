@@ -14,6 +14,13 @@ class _AddAttendantPageState extends State<AddAttendantPage> {
   final ctrl = Get.find<ProgramController>();
   final _formKey = GlobalKey<FormState>();
   final nameCtrl = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +40,10 @@ class _AddAttendantPageState extends State<AddAttendantPage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _addAttendant,
-              child: Text('Add Attendant'),
+              onPressed: _isLoading ? null : _addAttendant,
+              child: _isLoading
+                  ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : Text('Add Attendant'),
             ),
           ]),
         ),
@@ -43,22 +52,16 @@ class _AddAttendantPageState extends State<AddAttendantPage> {
   }
 
   Future<void> _addAttendant() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        await ctrl
-            .addAttendant(widget.programId, nameCtrl.text.trim())
-            .then((value) {
-          Get.back();
-          Get.snackbar('Success', 'Attendant added');
-        }).catchError((error) {
-          Get.back();
-          Get.snackbar("Error", error.toString());
-        });
-        // Close this page and return to the previous one
-        // Close current page and return to previous
-      } catch (e) {
-        Get.snackbar('Error', 'Failed to add attendant: $e');
-      }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() => _isLoading = true);
+    try {
+      await ctrl.addAttendant(widget.programId, nameCtrl.text.trim());
+      setState(() => _isLoading = false);
+      Get.back();
+      Get.snackbar('Success', 'Attendant added', snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      setState(() => _isLoading = false);
+      Get.snackbar('Error', 'Failed to add attendant: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     }
   }
 }

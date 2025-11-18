@@ -164,26 +164,6 @@ class _StatsListPageState extends State<StatsListPage> {
                     PieChartData(sections: sections, centerSpaceRadius: 24, sectionsSpace: 2),
                   ),
                 ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Attendance % by person', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Expanded(
-                        child: BarChart(
-                          BarChartData(
-                            alignment: BarChartAlignment.spaceAround,
-                            maxY: 100,
-                            titlesData: FlTitlesData(show: false),
-                            borderData: FlBorderData(show: false),
-                            barGroups: barGroups,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           )

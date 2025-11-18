@@ -2,24 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:attend_me/controllers/auth_controller.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
 
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthController _authController = Get.find<AuthController>();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    final success = await _authController.login(email, password);
-    if (success) {
-      Get.offAllNamed('/home');
-    } else {
-      Get.snackbar('Erreur', 'Identifiants invalides', snackPosition: SnackPosition.BOTTOM);
+    setState(() => _isLoading = true);
+    try {
+      final success = await _authController.login(email, password);
+      setState(() => _isLoading = false);
+      if (success) {
+        Get.offAllNamed('/home');
+      } else {
+        Get.snackbar('Erreur', 'Identifiants invalides', snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      Get.snackbar('Error', 'Login failed: ${e.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     }
   }
 
@@ -56,7 +76,7 @@ class LoginPage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: _submit, child: const Text('Se connecter')),
+              ElevatedButton(onPressed: _isLoading ? null : _submit, child: _isLoading ? SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,valueColor:AlwaysStoppedAnimation<Color>(Colors.white))) : const Text('Se connecter')),
               TextButton(
                 onPressed: () => Get.toNamed('/signup'),
                 child: const Text("Créer un compte"),
@@ -68,4 +88,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-

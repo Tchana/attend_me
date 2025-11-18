@@ -98,6 +98,11 @@ class _ProgramDetailPageState extends State<ProgramDetailPage>
           title: Text(program.title),
           actions: [
             IconButton(
+              icon: Icon(Icons.upload_file),
+              tooltip: 'Export CSV',
+              onPressed: () => CsvService.exportProgramToCsv(widget.programId),
+            ),
+            IconButton(
               icon: Icon(Icons.bar_chart),
               onPressed: () =>
                   Get.to(() => AnalyticsPage(programId: widget.programId)),
@@ -115,18 +120,6 @@ class _ProgramDetailPageState extends State<ProgramDetailPage>
           padding: EdgeInsets.all(12),
           child: Column(
             children: [
-              ElevatedButton.icon(
-                icon: Icon(Icons.download),
-                label: Text('Export CSV'),
-                onPressed: () =>
-                    CsvService.exportProgramToCsv(widget.programId),
-              ),
-              SizedBox(height: 8),
-              Text('Description: ${program.description}'),
-              SizedBox(height: 8),
-              Text(
-                  'Google Sheet: ${program.googleSheetUrl.isEmpty ? "Not set" : program.googleSheetUrl}'),
-              Divider(),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,

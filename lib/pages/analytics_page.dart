@@ -37,19 +37,20 @@ class AnalyticsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Color(0xFFE2E2E2),
-      appBar: AppBar(title: Text('Analytics - ${program.title}')),
+      appBar: AppBar(
+        title: Text('Analytics - ${program.title}'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download),
+            tooltip: 'Export CSV',
+            onPressed: () => CsvService.exportAnalyticsCsv(programId),
+          ),
+        ],
+      ),
       body: Padding(
         padding: EdgeInsets.all(12),
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.download),
-                label: Text('Export CSV'),
-                onPressed: () => CsvService.exportAnalyticsCsv(programId),
-              ),
-            ),
             SizedBox(height: 12),
             // Overall statistics chart
             Container(
