@@ -11,7 +11,7 @@ class CreateProgramPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE2E2E2),
+      backgroundColor: Color(0xFFEEEEEE),
       appBar: AppBar(
         title: Text('Create Program'),
       ),

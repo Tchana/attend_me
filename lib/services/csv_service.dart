@@ -3,6 +3,7 @@ import 'package:attend_me/models/program.dart';
 import 'package:attend_me/models/attendant.dart';
 import 'package:attend_me/models/session.dart';
 import 'package:csv/csv.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -12,6 +13,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import '../controllers/program_controller.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'download_helper.dart';
 
 class CsvService {
   static Future<void> exportProgramToCsv(String programId) async {
@@ -229,6 +232,85 @@ class CsvService {
     }
   }
 
+  /// Import a backup JSON file (export created by backupPrograms) and add contained programs to the app.
+  static Future<void> importBackupJson() async {
+    try {
+      final ctrl = Get.find<ProgramController>();
+      final fileResult = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        dialogTitle: 'Select backup JSON',
+      );
+      if (fileResult == null || fileResult.files.isEmpty) return;
+
+      String content;
+      final file = fileResult.files.single;
+      if (file.path != null) {
+        content = await File(file.path!).readAsString();
+      } else if (file.bytes != null) {
+        content = utf8.decode(file.bytes!);
+      } else {
+        throw Exception('Unable to read selected file');
+      }
+
+      final data = json.decode(content);
+      if (data == null || data['programs'] == null) {
+        throw Exception('Invalid backup format');
+      }
+
+      int imported = 0;
+      for (final p in (data['programs'] as List)) {
+        try {
+          final program = Program(
+            id: p['id'] ?? ctrl.uuid.v4(),
+            title: p['title'] ?? 'Imported Program',
+            description: p['description'] ?? '',
+            googleSheetUrl: p['googleSheetUrl'] ?? '',
+            attendants: [],
+            sessions: [],
+          );
+
+          // attendants
+          final List attendants = (p['attendants'] ?? []) as List;
+          for (final a in attendants) {
+            program.attendants.add(Attendant(id: a['id'] ?? ctrl.uuid.v4(), name: a['name'] ?? ''));
+          }
+
+          // sessions
+          final List sessions = (p['sessions'] ?? []) as List;
+          for (final s in sessions) {
+            final sess = Session(
+              id: s['id'] ?? ctrl.uuid.v4(),
+              title: s['title'] ?? 'Session',
+              date: DateTime.tryParse(s['date'] ?? '') ?? DateTime.now(),
+              isNewChapter: s['isNewChapter'] ?? false,
+              attendance: [],
+            );
+            final List attList = (s['attendance'] ?? []) as List;
+            for (final at in attList) {
+              final statusStr = (at['status'] ?? 'Absent').toString();
+              PresenceStatus status = PresenceStatus.Absent;
+              if (statusStr.toLowerCase().contains('present')) status = PresenceStatus.Present;
+              else if (statusStr.toLowerCase().contains('catch')) status = PresenceStatus.CatchUp;
+              sess.attendance.add(Attendance(attendantId: at['attendantId'] ?? '', status: status));
+            }
+            program.sessions.add(sess);
+          }
+
+          await ctrl.addImportedProgram(program);
+          imported++;
+        } catch (inner) {
+          print('Failed to import program entry: $inner');
+        }
+      }
+
+      Get.snackbar('Import Successful', 'Imported $imported programs', duration: Duration(seconds: 8));
+    } catch (e) {
+      print('Error importing backup JSON: $e');
+      Get.snackbar('Import Error', 'Failed to import backup: $e', duration: Duration(seconds: 8), backgroundColor: Colors.redAccent, colorText: Color(0xFFF9F9F9));
+    }
+  }
+
   // Method to pick directory using file picker
   static Future<String?> _pickDirectory() async {
     try {
@@ -395,6 +477,118 @@ class CsvService {
     } catch (e) {
       print('Error creating backup: $e');
       Get.snackbar('Backup Error', 'Failed to create backup: $e');
+    }
+  }
+
+  /// Save backup JSON only to the provided directory. Returns the saved file path or null on failure.
+  static Future<String?> backupProgramsToDirectory(String directoryPath, {String? fileName}) async {
+    try {
+      final ctrl = Get.find<ProgramController>();
+      if (ctrl.programs.isEmpty) {
+        throw Exception('No programs to back up.');
+      }
+
+      final backupPayload = {
+        'generatedAt': DateTime.now().toIso8601String(),
+        'programs': ctrl.programs.map((program) {
+          return {
+            'id': program.id,
+            'title': program.title,
+            'description': program.description,
+            'googleSheetUrl': program.googleSheetUrl,
+            'attendants': program.attendants
+                .map((attendant) => {
+                      'id': attendant.id,
+                      'name': attendant.name,
+                    })
+                .toList(),
+            'sessions': program.sessions
+                .map((session) => {
+                      'id': session.id,
+                      'title': session.title,
+                      'date': session.date.toIso8601String(),
+                      'isNewChapter': session.isNewChapter,
+                      'attendance': session.attendance
+                          .map((attendance) => {
+                                'attendantId': attendance.attendantId,
+                                'status': attendance.status.name,
+                              })
+                          .toList(),
+                    })
+                .toList(),
+          };
+        }).toList(),
+      };
+
+      final jsonContent = const JsonEncoder.withIndent('  ').convert(backupPayload);
+      final generatedFileName = fileName ?? 'attend_me_backup_${DateTime.now().toIso8601String().replaceAll(':', '-')}.json';
+      final sanitizedName = generatedFileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+
+      final file = File('$directoryPath/$sanitizedName');
+      await file.writeAsString(jsonContent);
+      // On web we may want to trigger download; but this method is for IO directories only
+      return file.path;
+    } catch (e) {
+      print('Error creating backup to directory: $e');
+      return null;
+    }
+  }
+
+  /// Trigger a download of the backup JSON for Web platforms.
+  static Future<void> backupProgramsDownload({String? fileName}) async {
+    final ctrl = Get.find<ProgramController>();
+    if (ctrl.programs.isEmpty) {
+      Get.snackbar('Backup', 'No programs to back up.');
+      return;
+    }
+    final backupPayload = {
+      'generatedAt': DateTime.now().toIso8601String(),
+      'programs': ctrl.programs.map((program) {
+        return {
+          'id': program.id,
+          'title': program.title,
+          'description': program.description,
+          'googleSheetUrl': program.googleSheetUrl,
+          'attendants': program.attendants
+              .map((attendant) => {
+                    'id': attendant.id,
+                    'name': attendant.name,
+                  })
+              .toList(),
+          'sessions': program.sessions
+              .map((session) => {
+                    'id': session.id,
+                    'title': session.title,
+                    'date': session.date.toIso8601String(),
+                    'isNewChapter': session.isNewChapter,
+                    'attendance': session.attendance
+                        .map((attendance) => {
+                              'attendantId': attendance.attendantId,
+                              'status': attendance.status.name,
+                            })
+                        .toList(),
+                  })
+              .toList(),
+        };
+      }).toList(),
+    };
+
+    final jsonContent = const JsonEncoder.withIndent('  ').convert(backupPayload);
+    final generatedFileName = fileName ?? 'attend_me_backup_${DateTime.now().toIso8601String().replaceAll(':', '-')}.json';
+    final sanitizedName = generatedFileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+
+    if (kIsWeb) {
+      // Use the web helper to trigger download
+      await triggerDownload(sanitizedName, jsonContent);
+      Get.snackbar('Backup', 'Download started for $sanitizedName');
+    } else {
+      // Not web: save to temp and open dialog message
+      final savedPath = await backupProgramsToDirectory(Directory.systemTemp.path, fileName: sanitizedName);
+      if (savedPath != null) {
+        Get.snackbar('Backup', 'Backup saved to $savedPath');
+      } else {
+        Get.snackbar('Backup', 'Failed to save backup to temp directory');
+      }
     }
   }
 

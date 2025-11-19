@@ -191,11 +191,17 @@ class _StatsListPageState extends State<StatsListPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Program selector
-            DropdownButtonFormField<String>(
-              initialValue: _selectedProgramId,
-              decoration: InputDecoration(labelText: 'Program'),
-              items: programs.map((p) => DropdownMenuItem(value: p.id, child: Text(p.title))).toList(),
-              onChanged: _onProgramChanged,
+            SizedBox(
+              height: 60,
+              child: DropdownButtonFormField<String>(
+                initialValue: _selectedProgramId,
+                decoration: InputDecoration(
+                  labelText: 'Program',
+                  border: OutlineInputBorder(),
+                ),
+                items: programs.map((p) => DropdownMenuItem(value: p.id, child: Text(p.title))).toList(),
+                onChanged: _onProgramChanged,
+              ),
             ),
             SizedBox(height: 12),
 

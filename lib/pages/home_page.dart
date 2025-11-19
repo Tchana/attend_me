@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE2E2E2),
+      backgroundColor: Color(0xFFEEEEEE),
       appBar: AppBar(
         title: Row(
           children: [
@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
             Text(_selectedIndex == 0 ? 'Attend Me' : _selectedIndex == 1 ? 'Programs' : _selectedIndex == 2 ? 'Stats' : 'Settings', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),),
           ],
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFFF9F9F9),
         elevation: 5,
         actions: _selectedIndex == 0 || _selectedIndex == 1
             ? [
@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
               child: Icon(
                 Icons.add,
                 size: 32,
-                color: Colors.white,
+                color: Color(0xFFF9F9F9),
               ),
               onPressed: () {
                 Get.to(() => CreateProgramPage());
@@ -291,7 +291,7 @@ class _HomePageState extends State<HomePage> {
       middleText: 'Are you sure you want to delete "$title"?',
       textConfirm: 'Delete',
       textCancel: 'Cancel',
-      confirmTextColor: Colors.white,
+      confirmTextColor: Color(0xFFF9F9F9),
       buttonColor: Colors.red,
       onConfirm: () async {
         // close confirmation dialog first
@@ -306,7 +306,7 @@ class _HomePageState extends State<HomePage> {
         } catch (err) {
           // close loading
           Get.back();
-          Get.snackbar('Error', 'Failed to delete program: ${err.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+          Get.snackbar('Error', 'Failed to delete program: ${err.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Color(0xFFF9F9F9));
         }
       },
     );
@@ -358,14 +358,14 @@ class _HomePageState extends State<HomePage> {
                     Get.snackbar('Saved', 'Program updated', snackPosition: SnackPosition.BOTTOM);
                   } catch (err) {
                     Get.back(); // close loading
-                    Get.snackbar('Error', 'Failed to update program: ${err.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+                    Get.snackbar('Error', 'Failed to update program: ${err.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Color(0xFFF9F9F9));
                   }
                 } else {
                   // Show a message if title or description is empty
                   Get.snackbar('Error', 'Title and description cannot be empty',
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: Colors.redAccent,
-                      colorText: Colors.white);
+                      colorText: Color(0xFFF9F9F9));
                 }
               },
             ),

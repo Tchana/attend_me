@@ -65,7 +65,7 @@ class _ProgramDetailPageState extends State<ProgramDetailPage>
           "Are you sure you want to delete '$attendantName'? This action cannot be undone and all attendance records for this attendant will be lost.",
       textConfirm: "Delete",
       textCancel: "Cancel",
-      confirmTextColor: Colors.white,
+      confirmTextColor: Color(0xFFF9F9F9),
       buttonColor: Colors.red,
       onConfirm: () {
         widget.ctrl.removeAttendant(widget.programId, attendantId);
@@ -93,7 +93,7 @@ class _ProgramDetailPageState extends State<ProgramDetailPage>
               session.title.toLowerCase().contains(_sessionQuery))
           .toList();
       return Scaffold(
-        backgroundColor: Color(0xFFE2E2E2),
+        backgroundColor: Color(0xFFEEEEEE),
         appBar: AppBar(
           title: Text(program.title),
           actions: [

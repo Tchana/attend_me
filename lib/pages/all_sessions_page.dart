@@ -26,7 +26,7 @@ class AllSessionsPage extends StatelessWidget {
     allSessions.sort((a, b) => (b['sessionDateIso']!).compareTo(a['sessionDateIso']!));
 
     return Scaffold(
-      backgroundColor: Color(0xFFE2E2E2),
+      backgroundColor: Color(0xFFEEEEEE),
       appBar: AppBar(title: Text('All Sessions')),
       body: ListView.builder(
         padding: EdgeInsets.all(12),

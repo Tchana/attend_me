@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      Get.snackbar('Error', 'Login failed: ${e.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar('Error', 'Login failed: ${e.toString()}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Color(0xFFF9F9F9));
     }
   }
 
@@ -54,29 +54,41 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Email requis';
-                  if (!value.contains('@')) return 'Email invalide';
-                  return null;
-                },
+              SizedBox(
+                height: 60,
+                child: TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Email requis';
+                    if (!value.contains('@')) return 'Email invalide';
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Mot de passe'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Mot de passe requis';
-                  if (value.length < 6) return 'Au moins 6 caractères';
-                  return null;
-                },
+              SizedBox(
+                height: 60,
+                child: TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mot de passe',
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Mot de passe requis';
+                    if (value.length < 6) return 'Au moins 6 caractères';
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: _isLoading ? null : _submit, child: _isLoading ? SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,valueColor:AlwaysStoppedAnimation<Color>(Colors.white))) : const Text('Se connecter')),
+              ElevatedButton(onPressed: _isLoading ? null : _submit, child: _isLoading ? SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,valueColor:AlwaysStoppedAnimation<Color>(Color(0xFFF9F9F9)))) : const Text('Se connecter')),
               TextButton(
                 onPressed: () => Get.toNamed('/signup'),
                 child: const Text("Créer un compte"),

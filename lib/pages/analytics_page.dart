@@ -36,7 +36,7 @@ class AnalyticsPage extends StatelessWidget {
     int totalCount = presentCount + absentCount + catchupCount;
 
     return Scaffold(
-      backgroundColor: Color(0xFFE2E2E2),
+      backgroundColor: Color(0xFFEEEEEE),
       appBar: AppBar(
         title: Text('Analytics - ${program.title}'),
         actions: [
@@ -68,7 +68,7 @@ class AnalyticsPage extends StatelessWidget {
                       titleStyle: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFFF9F9F9),
                       ),
                     ),
                     PieChartSectionData(
@@ -80,7 +80,7 @@ class AnalyticsPage extends StatelessWidget {
                       titleStyle: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFFF9F9F9),
                       ),
                     ),
                     PieChartSectionData(
@@ -92,7 +92,7 @@ class AnalyticsPage extends StatelessWidget {
                       titleStyle: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFFF9F9F9),
                       ),
                     ),
                   ],
