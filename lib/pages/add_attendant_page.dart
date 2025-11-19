@@ -44,9 +44,12 @@ class _AddAttendantPageState extends State<AddAttendantPage> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _isLoading ? null : _addAttendant,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF007BFF),
+              ),
               child: _isLoading
                   ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF9F9F9))))
-                  : Text('Add Attendant'),
+                  : Text('Add Attendant', style: TextStyle(color: Color(0xFFFFFFFF))),
             ),
           ]),
         ),

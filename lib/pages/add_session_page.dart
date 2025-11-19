@@ -64,7 +64,10 @@ class _AddSessionPageState extends State<AddSessionPage> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _addSession,
-              child: const Text('Create Session'),
+              child: const Text('Create Session', style: TextStyle(color: Color(0xFFFFFFFF))),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF007BFF),
+              ),
             )
           ],
         ),

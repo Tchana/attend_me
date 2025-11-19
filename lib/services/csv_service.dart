@@ -142,6 +142,115 @@ class CsvService {
     }
   }
 
+  /// Prompt the user to select a directory and save the analytics CSV there.
+  /// If the user cancels selection, the export is aborted.
+  static Future<void> exportAnalyticsCsvToDirectory(String programId) async {
+    try {
+      final ctrl = Get.find<ProgramController>();
+      final program = ctrl.programs.firstWhere((t) => t.id == programId, orElse: () {
+        throw Exception('Program with ID $programId not found');
+      });
+
+      int presentCount = 0;
+      int absentCount = 0;
+      int catchupCount = 0;
+
+      for (var session in program.sessions) {
+        for (var attendance in session.attendance) {
+          if (attendance.status == PresenceStatus.Present) {
+            presentCount++;
+          } else if (attendance.status == PresenceStatus.Absent) {
+            absentCount++;
+          } else if (attendance.status == PresenceStatus.CatchUp) {
+            catchupCount++;
+          }
+        }
+      }
+
+      final rows = <List<String>>[];
+      rows.add(['Type', 'Present', 'Absent', 'CatchUp', 'Total']);
+      rows.add([
+        'Overall',
+        presentCount.toString(),
+        absentCount.toString(),
+        catchupCount.toString(),
+        (presentCount + absentCount + catchupCount).toString()
+      ]);
+      rows.add([]);
+      rows.add(['Attendant', 'Present', 'Absent', 'CatchUp', 'Attendance Percent']);
+
+      for (var attendant in program.attendants) {
+        int attendantPresent = 0;
+        int attendantAbsent = 0;
+        int attendantCatchup = 0;
+
+        for (var session in program.sessions) {
+          final att = session.attendance.firstWhere(
+              (a) => a.attendantId == attendant.id,
+              orElse: () => Attendance(attendantId: attendant.id, status: PresenceStatus.Absent));
+          if (att.status == PresenceStatus.Present) {
+            attendantPresent++;
+          } else if (att.status == PresenceStatus.Absent) {
+            attendantAbsent++;
+          } else if (att.status == PresenceStatus.CatchUp) {
+            attendantCatchup++;
+          }
+        }
+
+        final totalSessions = program.sessions.length;
+        final percent = totalSessions == 0
+            ? 0.0
+            : ((attendantPresent + attendantCatchup) / totalSessions) * 100;
+
+        rows.add([
+          attendant.name,
+          attendantPresent.toString(),
+          attendantAbsent.toString(),
+          attendantCatchup.toString(),
+          percent.toStringAsFixed(1)
+        ]);
+      }
+
+      final csv = const ListToCsvConverter().convert(rows);
+      final sanitizedTitle = program.title.replaceAll(RegExp(r'[^\w\s-]+'), '_').trim();
+      final fileName = (sanitizedTitle.isEmpty ? 'program' : sanitizedTitle) + '_analytics.csv';
+
+      // Prompt user to pick a directory
+      final selectedDir = await _pickDirectory();
+      if (selectedDir == null || selectedDir.isEmpty) {
+        Get.snackbar('Export cancelled', 'No folder selected for export');
+        return;
+      }
+
+      try {
+        final file = File('$selectedDir/$fileName');
+        await file.writeAsString(csv);
+        Get.snackbar('Export Successful', 'Analytics data saved to:\n${file.path}', duration: Duration(seconds: 12));
+        // Try to open
+        try {
+          if (await file.exists()) {
+            final uri = Uri.file(file.path);
+            if (await canLaunchUrl(uri)) await launchUrl(uri);
+          }
+        } catch (e) {
+          print('Could not open exported file: $e');
+        }
+      } catch (e) {
+        print('Error writing analytics CSV to selected directory: $e');
+        // Fallback copy to clipboard
+        try {
+          await Clipboard.setData(ClipboardData(text: csv));
+          Get.snackbar('Export fallback', 'Unable to write file. CSV copied to clipboard.');
+        } catch (e2) {
+          Get.snackbar('Export Error', 'Failed to export analytics: $e');
+        }
+      }
+    } catch (e) {
+      print('Error in exportAnalyticsCsvToDirectory: $e');
+      Get.snackbar('Export Error', 'Failed to export analytics: $e');
+    }
+  }
+
   static Future<void> importProgramFromCsv() async {
     try {
       final ctrl = Get.find<ProgramController>();

@@ -42,34 +42,40 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFEEEEEE),
+      backgroundColor: Color(0xFFFAFAFA),
       appBar: AppBar(
         title: Row(
           children: [
             Image.asset('assets/icon/attendme.png', height: 32, width: 32),
             const SizedBox(width: 8),
-            Text(_selectedIndex == 0 ? 'Attend Me' : _selectedIndex == 1 ? 'Programs' : _selectedIndex == 2 ? 'Stats' : 'Settings', style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),),
+            Text(
+              _selectedIndex == 0 ? 'Attend Me' : _selectedIndex == 1 ? 'Programs' : _selectedIndex == 2 ? 'Stats' : 'Settings',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
           ],
         ),
-        backgroundColor: Color(0xFFF9F9F9),
-        elevation: 5,
-        actions: _selectedIndex == 0 || _selectedIndex == 1
-            ? [
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    showSearch(context: context, delegate: ProgramSearchDelegate(ctrl));
-                  },
-                ),
-              ]
-            : [],
-      ),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        iconTheme: IconThemeData(color: Colors.black87),
+        actionsIconTheme: IconThemeData(color: Colors.black87),
+         actions: _selectedIndex == 0 || _selectedIndex == 1
+             ? [
+                 IconButton(
+                   icon: Icon(Icons.search),
+                   onPressed: () {
+                     showSearch(context: context, delegate: ProgramSearchDelegate(ctrl));
+                   },
+                 ),
+               ]
+             : [],
+       ),
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
+        color: Color(0xFFF9F9F9),
         shape: CircularNotchedRectangle(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,7 +108,7 @@ class _HomePageState extends State<HomePage> {
             ),
             IconButton(
               tooltip: 'Stats',
-              icon: Icon(Icons.show_chart,
+              icon: Icon(Icons.bar_chart_outlined,
                   color: _selectedIndex == 2 ? Colors.blueAccent : Colors.grey),
               onPressed: () => _onItemTapped(3),
             ),
@@ -240,9 +246,10 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Get.to(() => CreateProgramPage());
             },
-            icon: Icon(Icons.add),
-            label: Text('Create Program'),
+            icon: Icon(Icons.add, color: Color(0xFFFFFFFF)),
+            label: Text('Create Program', style: TextStyle(color: Color(0xFFFFFFFF))),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF007BFF),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),

@@ -47,7 +47,10 @@ class _PinScreenState extends State<PinScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              child: Text(firstTime ? 'Save PIN' : 'Enter'),
+              child: Text(firstTime ? 'Save PIN' : 'Enter', style: TextStyle(color: Color(0xFFFFFFFF))),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF007BFF),
+              ),
               onPressed: () async {
                 if (_pinCtrl.text.length != 4) {
                   Get.snackbar('Error', 'PIN must be 4 digits');

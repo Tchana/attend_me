@@ -43,7 +43,13 @@ class AnalyticsPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.download),
             tooltip: 'Export CSV',
-            onPressed: () => CsvService.exportAnalyticsCsv(programId),
+            onPressed: () async {
+              try {
+                await CsvService.exportAnalyticsCsvToDirectory(programId);
+              } catch (e) {
+                Get.snackbar('Export Error', 'Failed to export analytics: $e');
+              }
+            },
           ),
         ],
       ),

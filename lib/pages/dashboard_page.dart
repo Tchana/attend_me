@@ -24,16 +24,16 @@ class DashboardPage extends StatelessWidget {
   }
 
   TextStyle _titleStyle(BuildContext context) =>
-      Theme.of(context).textTheme.titleLarge ??
-      TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
+      Theme.of(context).textTheme.headlineMedium ??
+      TextStyle(fontSize: 40, fontWeight: FontWeight.bold);
   TextStyle _subtitleStyle(BuildContext context) =>
-      Theme.of(context).textTheme.titleMedium ??
+      Theme.of(context).textTheme.titleLarge ??
       TextStyle(fontSize: 16, color: Colors.grey[700]);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
       child: Container(
         padding: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
@@ -57,13 +57,13 @@ class DashboardPage extends StatelessWidget {
             Obx(() => Text(
                 auth.userName.value?.isNotEmpty == true
                     ? auth.userName.value!
-                    : 'User Name',
+                    : 'Tchana Valdo',
                 style: _titleStyle(context)
                     .copyWith(fontWeight: FontWeight.bold))),
             SizedBox(height: 25),
             Text('Overview',
                 style: _subtitleStyle(context)
-                    .copyWith(fontWeight: FontWeight.bold)),
+                    .copyWith(fontWeight: FontWeight.w400)),
             SizedBox(height: 16),
 
             // Cards row (use primitive snapshot to avoid passing Hive objects to widgets)
@@ -161,7 +161,7 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         Text('Recent sessions',
                             style: _subtitleStyle(context).copyWith(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                                 color: Colors.black87)),
                         TextButton(
                           onPressed: () {
@@ -225,109 +225,53 @@ class DashboardPage extends StatelessWidget {
                               final dateStr =
                                   _formatDate(DateTime.parse(dateIso));
 
-                              final Widget child = (index == 0)
-                                  ? Column(
-                                      key: ValueKey('session-$sessionId'),
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Divider(
-                                          height: 2,
-                                          thickness: 0.5,
-                                          color: Colors.grey,
-                                        ),
-                                        ListTile(
-                                          key: ValueKey('session-$sessionId'),
-                                          title: Text(sessionTitle),
-                                          subtitle: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text('$programTitle'),
-                                              Row(
-                                                children: [
-                                                  Text('$dateStr'),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Icon(
-                                                      Icons
-                                                          .chevron_right_outlined,
-                                                      size: 16,
-                                                      color: Colors.grey[600])
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          onTap: () {
-                                            try {
-                                              Get.to(() => ProgramDetailPage(
-                                                  programId: programId));
-                                            } catch (err, st) {
-                                              Get.snackbar('Navigation error',
-                                                  err.toString(),
-                                                  snackPosition:
-                                                      SnackPosition.BOTTOM,
-                                                  duration:
-                                                      Duration(seconds: 6));
-                                              print(
-                                                  'Navigation error: $err\n$st');
-                                            }
-                                          },
-                                        ),
-                                      ],
-                                    )
-                                  : Column(
-                                      key: ValueKey('session-$sessionId'),
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Divider(
-                                          height: 2,
-                                          thickness: 0.5,
-                                          color: Colors.grey,
-                                        ),
-                                        ListTile(
-                                          title: Text(sessionTitle),
-                                          subtitle: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text('$programTitle'),
-                                              Row(
-                                                children: [
-                                                  Text('$dateStr'),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Icon(
-                                                      Icons
-                                                          .chevron_right_outlined,
-                                                      size: 16,
-                                                      color: Colors.grey[600])
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          onTap: () {
-                                            try {
-                                              Get.to(() => ProgramDetailPage(
-                                                  programId: programId));
-                                            } catch (err, st) {
-                                              Get.snackbar('Navigation error',
-                                                  err.toString(),
-                                                  snackPosition:
-                                                      SnackPosition.BOTTOM,
-                                                  duration:
-                                                      Duration(seconds: 6));
-                                              print(
-                                                  'Navigation error: $err\n$st');
-                                            }
-                                          },
-                                        ),
-                                      ],
-                                    );
+                              final bool isLast = index == recent.length - 1;
 
-                              // Return the item directly. AnimatedSwitcher caused a web interop issue in some builds.
-                              return child;
+                              return Column(
+                                key: ValueKey('session-$sessionId'),
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    title: Text(sessionTitle),
+                                    subtitle: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('$programTitle'),
+                                        Row(
+                                          children: [
+                                            Text('$dateStr'),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Icon(Icons.chevron_right_outlined,
+                                                size: 16, color: Colors.grey[600])
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      try {
+                                        Get.to(() => ProgramDetailPage(
+                                            programId: programId));
+                                      } catch (err, st) {
+                                        Get.snackbar('Navigation error',
+                                            err.toString(),
+                                            snackPosition:
+                                                SnackPosition.BOTTOM,
+                                            duration: Duration(seconds: 6));
+                                        print('Navigation error: $err\n$st');
+                                      }
+                                    },
+                                  ),
+                                  if (!isLast)
+                                    Divider(
+                                      height: 2,
+                                      thickness: 0.5,
+                                      color: Colors.grey,
+                                    ),
+                                ],
+                              );
                             },
                           );
                         } catch (err, st) {

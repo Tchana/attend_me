@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../services/csv_service.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -20,11 +20,26 @@ class SettingsPage extends StatelessWidget {
               title: Text('Backup Data'),
               subtitle: Text('Export all programs to a backup file'),
               onTap: () async {
+                // On web we cannot pick a directory reliably
+                if (kIsWeb) {
+                  final proceed = await Get.defaultDialog<bool>(
+                    title: 'Directory selection not available',
+                    middleText: 'Directory selection is not available on web. Copy backup JSON to clipboard instead?',
+                    textConfirm: 'Yes',
+                    textCancel: 'Cancel',
+                  );
+                  if (proceed == true) {
+                    await CsvService.backupPrograms();
+                  }
+                  return;
+                }
+
                 try {
                   // Ask the user to pick a directory
                   final String? selectedDirectory = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose backup folder');
-                  if (selectedDirectory == null) {
+                  if (selectedDirectory == null || selectedDirectory.isEmpty) {
                     // user cancelled
+                    Get.snackbar('Cancelled', 'No folder selected for backup');
                     return;
                   }
 
@@ -35,11 +50,12 @@ class SettingsPage extends StatelessWidget {
                   } else {
                     Get.snackbar('Backup Failed', 'Could not save backup to the selected location.', duration: Duration(seconds: 8), backgroundColor: Colors.redAccent, colorText: Color(0xFFF9F9F9));
                   }
-                } on UnimplementedError catch (_) {
-                  // Directory picking not supported on this platform (e.g. web)
+                } on UnimplementedError catch (e) {
+                  // Some platforms may throw unimplemented for directory picking
+                  Get.snackbar('Not supported', 'Directory picking not supported on this platform: ${e.toString()}', backgroundColor: Colors.orangeAccent);
                   final proceed = await Get.defaultDialog<bool>(
-                    title: 'Directory selection not available',
-                    middleText: 'Your platform does not support picking a folder. We can copy the backup JSON to the clipboard as a fallback. Proceed?',
+                    title: 'Fallback',
+                    middleText: 'Directory picking not available. Copy backup JSON to clipboard instead?',
                     textConfirm: 'Yes',
                     textCancel: 'Cancel',
                   );
@@ -69,7 +85,11 @@ class SettingsPage extends StatelessWidget {
               title: Text('Import Data'),
               subtitle: Text('Import programs from a backup JSON file'),
               onTap: () async {
-                await CsvService.importBackupJson();
+                try {
+                  await CsvService.importBackupJson();
+                } catch (e) {
+                  Get.snackbar('Import error', e.toString(), backgroundColor: Colors.redAccent, colorText: Color(0xFFF9F9F9));
+                }
               },
             ),
           ),

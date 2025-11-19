@@ -41,11 +41,13 @@ class _TakeAttendancePageState extends State<TakeAttendancePage> {
   void _initializeAttendanceStatus() {
     final program =
         widget.ctrl.programs.firstWhere((t) => t.id == widget.programId);
-    final session = program.sessions.firstWhere((l) => l.id == widget.sessionId);
+    final session =
+        program.sessions.firstWhere((l) => l.id == widget.sessionId);
 
     for (var tr in program.attendants) {
       try {
-        final att = session.attendance.firstWhere((a) => a.attendantId == tr.id);
+        final att =
+            session.attendance.firstWhere((a) => a.attendantId == tr.id);
         _attendanceStatus[tr.id] = att.status;
       } catch (e) {
         // If attendance record doesn't exist, use default
@@ -69,7 +71,8 @@ class _TakeAttendancePageState extends State<TakeAttendancePage> {
   Widget build(BuildContext context) {
     final program =
         widget.ctrl.programs.firstWhere((t) => t.id == widget.programId);
-    final session = program.sessions.firstWhere((l) => l.id == widget.sessionId);
+    final session =
+        program.sessions.firstWhere((l) => l.id == widget.sessionId);
     final attendants = program.attendants
         .where((tr) =>
             _searchQuery.isEmpty ||
@@ -77,7 +80,11 @@ class _TakeAttendancePageState extends State<TakeAttendancePage> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Attendance - ${session.title}')),
+      backgroundColor: Color(0xFFFAFAFA),
+      appBar: AppBar(
+        backgroundColor: Color(0xFFFFFF),
+        title: Text('Attendance - ${session.title}'),
+      ),
       body: Column(
         children: [
           Padding(

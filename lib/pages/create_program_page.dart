@@ -24,7 +24,10 @@ class CreateProgramPage extends StatelessWidget {
             TextField(controller: sheetCtrl, decoration: InputDecoration(labelText: 'Google Sheet URL (optional)')),
             SizedBox(height: 20),
             ElevatedButton(
-              child: Text('Create'),
+              child: Text('Create', style: TextStyle(color: Color(0xFFFFFFFF))),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF007BFF),
+              ),
               onPressed: () {
                 final title = titleCtrl.text.trim();
                 if (title.isEmpty) {
